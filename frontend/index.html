@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FitTracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div id="app">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-icon">⚡</span>
+      <span class="brand-name">FITTRACKER</span>
+    </div>
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" data-page="dashboard"><span class="nav-icon">▣</span>Dashboard</a></li>
+      <li><a href="#" class="nav-link" data-page="log"><span class="nav-icon">+</span>Log Workout</a></li>
+      <li><a href="#" class="nav-link" data-page="history"><span class="nav-icon">◈</span>History</a></li>
+      <li><a href="#" class="nav-link" data-page="progress"><span class="nav-icon">▲</span>Progress</a></li>
+      <li><a href="#" class="nav-link" data-page="bodyweight"><span class="nav-icon">◉</span>Body Weight</a></li>
+      <li><a href="#" class="nav-link" data-page="exercises"><span class="nav-icon">◎</span>Exercises</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <div id="streak-badge" class="streak-badge hidden">
+        <span class="streak-flame">🔥</span>
+        <span id="streak-count">0</span> day streak
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content">
+    <div class="mobile-header">
+      <button class="menu-btn" id="menuBtn">☰</button>
+      <span class="brand-name">FITTRACKER</span>
+    </div>
+
+    <!-- DASHBOARD -->
+    <section class="page active" id="page-dashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <span class="date-badge" id="today-date"></span>
+      </div>
+      <div class="stats-grid" id="stats-grid">
+        <div class="stat-card" id="sc-workouts"><div class="stat-val">—</div><div class="stat-label">Total Workouts</div></div>
+        <div class="stat-card" id="sc-streak"><div class="stat-val">—</div><div class="stat-label">Current Streak</div></div>
+        <div class="stat-card" id="sc-sets"><div class="stat-val">—</div><div class="stat-label">Total Sets</div></div>
+        <div class="stat-card" id="sc-bw"><div class="stat-val">—</div><div class="stat-label">Body Weight</div></div>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card wide">
+          <div class="chart-title">Weekly Frequency</div>
+          <canvas id="chart-weekly" height="120"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-title">Category Mix</div>
+          <canvas id="chart-category" height="200"></canvas>
+        </div>
+      </div>
+      <div class="chart-card full-width">
+        <div class="chart-title">Volume Over Time (kg·reps)</div>
+        <canvas id="chart-volume" height="120"></canvas>
+      </div>
+      <div class="pr-section">
+        <div class="section-title">Personal Records</div>
+        <div class="pr-grid" id="pr-grid"></div>
+      </div>
+    </section>
+
+    <!-- LOG WORKOUT -->
+    <section class="page" id="page-log">
+      <div class="page-header">
+        <h1>Log Workout</h1>
+      </div>
+      <div class="log-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Workout Name</label>
+            <input type="text" id="wk-name" placeholder="e.g. Push Day, Morning Run…">
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="wk-date">
+          </div>
+          <div class="form-group">
+            <label>Duration (min)</label>
+            <input type="number" id="wk-duration" placeholder="60" min="1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="wk-notes" rows="2" placeholder="How did it feel?"></textarea>
+        </div>
+
+        <div class="sets-section">
+          <div class="sets-header">
+            <span class="section-title">Sets</span>
+            <button class="btn-add" id="add-set-btn">+ Add Set</button>
+          </div>
+          <div id="sets-container"></div>
+        </div>
+
+        <button class="btn-primary btn-save" id="save-workout-btn">Save Workout</button>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="page" id="page-history">
+      <div class="page-header">
+        <h1>History</h1>
+      </div>
+      <div class="workout-list" id="workout-list"></div>
+    </section>
+
+    <!-- PROGRESS -->
+    <section class="page" id="page-progress">
+      <div class="page-header">
+        <h1>Progress</h1>
+      </div>
+      <div class="form-group" style="max-width:320px;margin-bottom:2rem">
+        <label>Select Exercise</label>
+        <select id="progress-exercise-select">
+          <option value="">— pick an exercise —</option>
+        </select>
+      </div>
+      <div class="charts-row">
+        <div class="chart-card wide">
+          <div class="chart-title">Max Weight Over Time</div>
+          <canvas id="chart-progress-weight" height="140"></canvas>
+        </div>
+        <div class="chart-card wide">
+          <div class="chart-title">Volume Over Time</div>
+          <canvas id="chart-progress-volume" height="140"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- BODY WEIGHT -->
+    <section class="page" id="page-bodyweight">
+      <div class="page-header">
+        <h1>Body Weight</h1>
+      </div>
+      <div class="bw-log-row">
+        <div class="form-group">
+          <label>Weight (kg)</label>
+          <input type="number" id="bw-input" step="0.1" placeholder="75.5">
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="bw-date">
+        </div>
+        <button class="btn-primary" id="bw-save-btn">Log</button>
+      </div>
+      <div class="chart-card full-width" style="margin-bottom:2rem">
+        <div class="chart-title">Weight Trend (90 days)</div>
+        <canvas id="chart-bw" height="130"></canvas>
+      </div>
+      <div class="bw-table-wrap">
+        <table class="data-table" id="bw-table">
+          <thead><tr><th>Date</th><th>Weight (kg)</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- EXERCISES -->
+    <section class="page" id="page-exercises">
+      <div class="page-header">
+        <h1>Exercise Library</h1>
+      </div>
+      <div class="exercise-add-row">
+        <input type="text" id="ex-name" placeholder="Exercise name">
+        <select id="ex-category">
+          <option value="strength">Strength</option>
+          <option value="bodyweight">Bodyweight</option>
+          <option value="cardio">Cardio</option>
+          <option value="custom">Custom</option>
+        </select>
+        <input type="text" id="ex-muscle" placeholder="Muscle group">
+        <button class="btn-primary" id="ex-add-btn">Add</button>
+      </div>
+      <div class="exercise-filter-row">
+        <button class="filter-btn active" data-cat="all">All</button>
+        <button class="filter-btn" data-cat="strength">Strength</button>
+        <button class="filter-btn" data-cat="bodyweight">Bodyweight</button>
+        <button class="filter-btn" data-cat="cardio">Cardio</button>
+        <button class="filter-btn" data-cat="custom">Custom</button>
+      </div>
+      <div class="exercise-grid" id="exercise-grid"></div>
+    </section>
+
+    <!-- WORKOUT DETAIL MODAL -->
+    <div class="modal-overlay hidden" id="modal-overlay">
+      <div class="modal" id="modal-detail">
+        <button class="modal-close" id="modal-close">✕</button>
+        <div id="modal-content"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,45 @@
+services:
+
+  db:
+    image: postgres:16-alpine
+    container_name: fittracker-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       fittracker
+      POSTGRES_USER:     fituser
+      POSTGRES_PASSWORD: fitpass          # ← change this before first run
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fituser -d fittracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: fittracker-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://fituser:fitpass@db:5432/fittracker
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: fittracker-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"        # access at http://localhost:3000 (or your Tailscale IP:3000)
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+    name: fittracker-pgdata
+
+networks:
+  default:
+    name: fittracker-net
